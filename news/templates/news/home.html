@@ -1,0 +1,81 @@
+{% extends 'news/base.html' %}
+{% load static %}
+{% block content %}
+
+{% if query %}
+  <h2 class="text-xl font-semibold mb-6 text-center">Search Results for "{{ query }}"</h2>
+  <div class="grid md:grid-cols-2 gap-6">
+    {% for article in articles %}
+      {% include 'news/partials/article_card.html' with article=article %}
+    {% empty %}
+      <p class="text-center">No articles found.</p>
+    {% endfor %}
+  </div>
+{% else %}
+
+  <!-- 📰 Three Columns: Latest | Recommended | Trending -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+    <!-- 🆕 Latest -->
+    <div>
+      <h2 class="text-xl font-bold mb-3 text-gray-800 border-b pb-1">🆕 Latest</h2>
+      {% for article in latest_articles %}
+        {% include 'news/partials/article_card.html' with article=article %}
+      {% empty %}
+        <p>No latest news yet.</p>
+      {% endfor %}
+
+      <!-- Pagination -->
+      <div class="mt-4">
+        {% if latest_articles.has_previous %}
+          <a href="?latest_page={{ latest_articles.previous_page_number }}" class="text-sm text-blue-600 hover:underline">Previous</a>
+        {% endif %}
+        {% if latest_articles.has_next %}
+          <a href="?latest_page={{ latest_articles.next_page_number }}" class="text-sm text-blue-600 hover:underline ml-4">Next</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ✨ Recommended -->
+    <div>
+      <h2 class="text-xl font-bold mb-3 text-blue-600 border-b pb-1">✨ Recommended</h2>
+      {% for article in recommended_articles %}
+        {% include 'news/partials/article_card.html' with article=article %}
+      {% empty %}
+        <p>No recommendations yet.</p>
+      {% endfor %}
+
+      <div class="mt-4">
+        {% if recommended_articles.has_previous %}
+          <a href="?recommended_page={{ recommended_articles.previous_page_number }}" class="text-sm text-blue-600 hover:underline">Previous</a>
+        {% endif %}
+        {% if recommended_articles.has_next %}
+          <a href="?recommended_page={{ recommended_articles.next_page_number }}" class="text-sm text-blue-600 hover:underline ml-4">Next</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- 🔥 Trending -->
+    <div>
+      <h2 class="text-xl font-bold mb-3 text-red-600 border-b pb-1">🔥 Trending</h2>
+      {% for article in trending_articles %}
+        {% include 'news/partials/article_card.html' with article=article %}
+      {% empty %}
+        <p>No trending news.</p>
+      {% endfor %}
+
+      <div class="mt-4">
+        {% if trending_articles.has_previous %}
+          <a href="?trending_page={{ trending_articles.previous_page_number }}" class="text-sm text-blue-600 hover:underline">Previous</a>
+        {% endif %}
+        {% if trending_articles.has_next %}
+          <a href="?trending_page={{ trending_articles.next_page_number }}" class="text-sm text-blue-600 hover:underline ml-4">Next</a>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+{% endif %}
+
+{% endblock %}

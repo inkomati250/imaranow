@@ -1,0 +1,44 @@
+
+{% extends 'news/base.html' %}
+
+{% block content %}
+  <div class="bg-white p-6 rounded shadow max-w-4xl mx-auto">
+
+    <!-- 🎥 Video Embed or Image -->
+    {% if article.video_url %}
+      <div class="aspect-w-16 aspect-h-9 mb-4">
+        <iframe
+          src="{{ article.video_url }}"
+          class="w-full h-64 rounded"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+        ></iframe>
+      </div>
+    {% elif article.video %}
+      <video controls class="w-full h-64 rounded mb-4 object-cover">
+        <source src="{{ article.video.url }}" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    {% elif article.image %}
+      <img src="{{ article.image.url }}" alt="{{ article.title }}" class="w-full h-64 object-cover rounded mb-4">
+    {% endif %}
+
+    <!-- 📰 Article Title & Info -->
+    <h1 class="text-4xl font-bold mb-2">{{ article.title }}</h1>
+    <p class="text-gray-500 mb-4">
+      {{ article.created|date:"F j, Y" }} |
+      Category: {{ article.category.name }}
+    </p>
+
+    <!-- 📝 Article Body -->
+    <div class="prose max-w-full">
+      {{ article.content|safe }}
+    </div>
+
+    <!-- ⬅️ Back Link -->
+    <a href="{% url 'home' %}" class="inline-block mt-8 text-red-600 hover:underline">← Back to homepage</a>
+  </div>
+{% endblock %}
+
+

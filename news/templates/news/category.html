@@ -1,0 +1,26 @@
+{% extends 'news/base.html' %}
+
+{% block content %}
+  <h1 class="text-2xl font-bold mb-6">Category: {{ category.name }}</h1>
+
+  {% if page_obj %}
+    <div class="grid md:grid-cols-2 gap-6">
+      {% for article in page_obj %}
+        {% include 'news/partials/article_card.html' %}
+      {% endfor %}
+    </div>
+
+    <!-- 🔁 Pagination Controls -->
+    <div class="mt-6 flex justify-center space-x-4">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" class="text-red-600 hover:underline">← Previous</a>
+      {% endif %}
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="text-red-600 hover:underline">Next →</a>
+      {% endif %}
+    </div>
+  {% else %}
+    <p>No articles found in this category.</p>
+  {% endif %}
+{% endblock %}
+
