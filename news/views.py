@@ -5,6 +5,8 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.utils.timesince import timesince
+from django.utils.timezone import now
 
 from .models import Article, Category, Subscriber
 
@@ -27,6 +29,16 @@ def get_sidebar_context():
 
     most_viewed = annotate_has_video(most_viewed)
     latest_videos = annotate_has_video(latest_videos)
+
+    # Add formatted views for display
+    for article in most_viewed:
+        article.views_display = f"{article.views:,}"  # comma-separated
+
+    # Add hours ago attribute for videos
+    for video in latest_videos:
+        delta = now() - video.created
+        hours_ago = int(delta.total_seconds() // 3600)
+        video.hours_ago = hours_ago if hours_ago > 0 else "<1"
 
     return {
         'most_viewed': most_viewed,
@@ -150,3 +162,4 @@ def subscribe(request):
         Subscriber.objects.create(email=email)
 
     return JsonResponse({'message': f'Subscribed {email} successfully!'})
+
