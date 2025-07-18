@@ -1,10 +1,12 @@
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
 from django.core.paginator import Paginator
-from .models import Article, Category
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 
+from .models import Article, Category, Subscriber
 
 
 def annotate_has_video(queryset):
@@ -35,24 +37,23 @@ def get_sidebar_context():
 def home(request):
     query = request.GET.get('q')
     category_filter = request.GET.get('category')
-
     base_qs = Article.objects.filter(published=True).order_by('-created')
 
-    # Latest Articles - exclude trending/editor pick
+    # Latest Articles
     latest_qs = base_qs.filter(is_trending=False, is_editor_pick=False)
     latest_paginator = Paginator(latest_qs, 6)
     latest_page = latest_paginator.get_page(request.GET.get('latest_page'))
     latest_ids = [article.id for article in latest_page]
     latest_page = annotate_has_video(latest_page)
 
-    # Recommended Articles - editor picks excluding latest
+    # Recommended Articles
     recommended_qs = base_qs.filter(is_editor_pick=True).exclude(id__in=latest_ids)
     recommended_paginator = Paginator(recommended_qs, 6)
     recommended_page = recommended_paginator.get_page(request.GET.get('recommended_page'))
     recommended_ids = [article.id for article in recommended_page]
     recommended_page = annotate_has_video(recommended_page)
 
-    # Trending Articles - trending excluding latest & recommended
+    # Trending Articles
     trending_qs = base_qs.filter(is_trending=True).exclude(id__in=latest_ids + recommended_ids)
     trending_paginator = Paginator(trending_qs, 6)
     trending_page = trending_paginator.get_page(request.GET.get('trending_page'))
@@ -63,12 +64,12 @@ def home(request):
     # Search or category filter
     if query:
         articles = base_qs.filter(Q(title__icontains=query) | Q(content__icontains=query))
-        articles = annotate_has_video(articles)
     elif category_filter:
         articles = base_qs.filter(category__slug=category_filter)
-        articles = annotate_has_video(articles)
     else:
-        articles = annotate_has_video(base_qs[:10])
+        articles = base_qs[:10]
+
+    articles = annotate_has_video(articles)
 
     context = {
         'query': query,
@@ -81,19 +82,17 @@ def home(request):
     }
 
     context.update(get_sidebar_context())
-
     return render(request, 'news/home.html', context)
 
 
 def article_detail(request, slug):
     article = get_object_or_404(Article, slug=slug, published=True)
 
-    # Extract YouTube embed URL if video_url is YouTube watch link
+    # Extract YouTube embed URL
     video_embed_url = None
     if article.video_url and "youtube.com/watch" in article.video_url:
         import urllib.parse as urlparse
         from urllib.parse import parse_qs
-
         url_data = urlparse.urlparse(article.video_url)
         query = parse_qs(url_data.query)
         video_id = query.get("v")
@@ -120,7 +119,7 @@ def article_detail(request, slug):
 def category_view(request, slug):
     category = get_object_or_404(Category, slug=slug)
     articles_qs = Article.objects.filter(category=category, published=True).order_by('-created')
-    paginator = Paginator(articles_qs, 10)  # 10 per page
+    paginator = Paginator(articles_qs, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -141,6 +140,13 @@ def subscribe(request):
     if not email:
         return JsonResponse({'error': 'Email is required'}, status=400)
 
-    # TODO: Validate email format, save to DB or send to mailing list service
+    try:
+        validate_email(email)
+    except ValidationError:
+        return JsonResponse({'error': 'Invalid email format'}, status=400)
+
+    # Prevent duplicates
+    if not Subscriber.objects.filter(email=email).exists():
+        Subscriber.objects.create(email=email)
 
     return JsonResponse({'message': f'Subscribed {email} successfully!'})
