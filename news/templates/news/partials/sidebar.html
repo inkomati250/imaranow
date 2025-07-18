@@ -1,44 +1,44 @@
-<aside class="w-full lg:w-80 xl:w-96 space-y-8 px-2 lg:px-0">
+<aside class="w-full lg:w-80 xl:w-96 space-y-10 px-2 lg:px-0">
 
   <!-- 🔥 Most Viewed Articles -->
-  <div class="bg-white p-4 rounded-xl shadow-sm border">
-    <h2 class="text-lg font-bold border-b border-gray-200 pb-2 mb-4">Most Viewed</h2>
+  <section class="bg-white p-5 rounded-2xl shadow border border-gray-200">
+    <h2 class="text-lg font-bold border-b pb-2 mb-4 text-gray-800">🔥 Most Viewed</h2>
     {% for article in most_viewed %}
-      <a href="{% url 'article_detail' article.slug %}" class="flex items-start mb-4 hover:bg-gray-50 p-2 rounded transition-all">
-        <img src="{{ article.image.url }}" alt="{{ article.title }}" class="w-16 h-16 object-cover rounded mr-3 shadow" />
-        <div>
-          <h3 class="text-sm font-semibold leading-snug">{{ article.title|truncatechars:60 }}</h3>
+      <a href="{% url 'article_detail' article.slug %}" class="flex items-start mb-4 hover:bg-gray-50 p-2 rounded-lg transition-all">
+        <img src="{{ article.image.url }}" alt="{{ article.title }}" class="w-16 h-16 object-cover rounded-md mr-3 shadow-sm border" />
+        <div class="flex-1">
+          <h3 class="text-sm font-medium text-gray-900 leading-tight">{{ article.title|truncatechars:60 }}</h3>
           <p class="text-xs text-gray-500 mt-1">{{ article.created_at|timesince }} ago</p>
         </div>
       </a>
     {% empty %}
       <p class="text-sm text-gray-500">No popular articles found.</p>
     {% endfor %}
-  </div>
+  </section>
 
   <!-- 🎥 Latest Videos -->
-  <div class="bg-white p-4 rounded-xl shadow-sm border">
-    <h2 class="text-lg font-bold border-b border-gray-200 pb-2 mb-4">Latest Videos</h2>
+  <section class="bg-white p-5 rounded-2xl shadow border border-gray-200">
+    <h2 class="text-lg font-bold border-b pb-2 mb-4 text-gray-800">🎥 Latest Videos</h2>
     {% for video in latest_videos %}
-      <a href="{% url 'article_detail' video.slug %}" class="block mb-4 hover:bg-gray-50 p-2 rounded transition-all">
-        <div class="relative">
-          <img src="{{ video.image.url }}" alt="{{ video.title }}" class="w-full h-44 object-cover rounded shadow-sm" />
-          <div class="absolute inset-0 flex items-center justify-center">
-            <svg class="w-10 h-10 text-white opacity-80" fill="currentColor" viewBox="0 0 20 20">
+      <a href="{% url 'article_detail' video.slug %}" class="block mb-5 hover:bg-gray-50 p-2 rounded-lg transition-all">
+        <div class="relative rounded overflow-hidden shadow-sm border">
+          <img src="{{ video.image.url }}" alt="{{ video.title }}" class="w-full h-44 object-cover" />
+          <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-25">
+            <svg class="w-10 h-10 text-white opacity-90" fill="currentColor" viewBox="0 0 20 20">
               <path d="M6 4l12 6-12 6V4z" />
             </svg>
           </div>
         </div>
-        <h3 class="text-sm font-semibold mt-2">{{ video.title|truncatechars:60 }}</h3>
+        <h3 class="text-sm font-medium text-gray-900 mt-2 leading-snug">{{ video.title|truncatechars:60 }}</h3>
       </a>
     {% empty %}
       <p class="text-sm text-gray-500">No videos available.</p>
     {% endfor %}
-  </div>
+  </section>
 
   <!-- 📩 Newsletter Signup -->
-  <div class="bg-white p-4 rounded-xl shadow-sm border">
-    <h2 class="text-lg font-bold border-b border-gray-200 pb-2 mb-4">Join Our Newsletter</h2>
+  <section class="bg-white p-5 rounded-2xl shadow border border-gray-200">
+    <h2 class="text-lg font-bold border-b pb-2 mb-4 text-gray-800">📩 Join Our Newsletter</h2>
     <form method="post" action="{% url 'subscribe' %}" class="space-y-3">
       {% csrf_token %}
       <input
@@ -55,6 +55,7 @@
         Subscribe
       </button>
     </form>
-  </div>
+  </section>
 
 </aside>
+
