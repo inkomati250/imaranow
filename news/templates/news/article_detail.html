@@ -3,33 +3,27 @@
 {% block content %}
   <div class="bg-white p-6 rounded shadow max-w-4xl mx-auto">
 
-    <!-- 🎥 Video Embed or Image -->
-    {% if article.video_url %}
-      <div class="aspect-w-16 aspect-h-9 mb-4">
-        <iframe
-          src="{{ article.video_url }}"
-          class="w-full h-full rounded"
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen
-        ></iframe>
-      </div>
-    {% elif article.video %}
-      <div class="aspect-w-16 aspect-h-9 mb-4">
-        <video controls class="w-full h-full rounded object-cover">
-          <source src="{{ article.video.url }}" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
-      </div>
-    {% elif article.image %}
-      <div class="aspect-w-16 aspect-h-9 mb-4">
-        <img
-          src="{{ article.image.url }}"
-          alt="{{ article.title }}"
-          class="w-full h-full object-cover rounded"
-        >
-      </div>
-    {% endif %}
+   {% if article.video_url %}
+  <div class="relative pb-[56.25%] mb-4 overflow-hidden rounded">
+    <iframe
+      src="{{ article.video_url }}"
+      class="absolute top-0 left-0 w-full h-full"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen
+    ></iframe>
+  </div>
+{% elif article.video %}
+  <div class="relative pb-[56.25%] mb-4 overflow-hidden rounded">
+    <video controls class="absolute top-0 left-0 w-full h-full object-contain">
+      <source src="{{ article.video.url }}" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+{% elif article.image %}
+  <img src="{{ article.image.url }}" alt="{{ article.title }}" class="w-full rounded mb-4 object-contain">
+{% endif %}
+
 
     <!-- 📰 Article Title & Info -->
     <h1 class="text-4xl font-bold mb-2">{{ article.title }}</h1>
