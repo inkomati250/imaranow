@@ -1,4 +1,3 @@
-
 {% extends 'news/base.html' %}
 
 {% block content %}
@@ -9,19 +8,27 @@
       <div class="aspect-w-16 aspect-h-9 mb-4">
         <iframe
           src="{{ article.video_url }}"
-          class="w-full h-64 rounded"
+          class="w-full h-full rounded"
           frameborder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen
         ></iframe>
       </div>
     {% elif article.video %}
-      <video controls class="w-full h-64 rounded mb-4 object-cover">
-        <source src="{{ article.video.url }}" type="video/mp4">
-        Your browser does not support the video tag.
-      </video>
+      <div class="aspect-w-16 aspect-h-9 mb-4">
+        <video controls class="w-full h-full rounded object-cover">
+          <source src="{{ article.video.url }}" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
     {% elif article.image %}
-      <img src="{{ article.image.url }}" alt="{{ article.title }}" class="w-full h-64 object-cover rounded mb-4">
+      <div class="aspect-w-16 aspect-h-9 mb-4">
+        <img
+          src="{{ article.image.url }}"
+          alt="{{ article.title }}"
+          class="w-full h-full object-cover rounded"
+        >
+      </div>
     {% endif %}
 
     <!-- 📰 Article Title & Info -->
