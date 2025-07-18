@@ -11,6 +11,26 @@ def annotate_has_video(queryset):
     return queryset
 
 
+def get_sidebar_context():
+    # Top 5 Most Viewed Articles
+    most_viewed = Article.objects.filter(published=True).order_by('-views')[:5]
+
+    # Latest 5 Videos (articles with video or video_url)
+    latest_videos = Article.objects.filter(
+        published=True
+    ).filter(
+        Q(video_url__isnull=False) | Q(video__isnull=False)
+    ).order_by('-created')[:5]
+
+    most_viewed = annotate_has_video(most_viewed)
+    latest_videos = annotate_has_video(latest_videos)
+
+    return {
+        'most_viewed': most_viewed,
+        'latest_videos': latest_videos,
+    }
+
+
 def home(request):
     query = request.GET.get('q')
     category_filter = request.GET.get('category')
@@ -18,30 +38,30 @@ def home(request):
     # Base queryset: only published articles
     base_qs = Article.objects.filter(published=True).order_by('-created')
 
-    # ✅ 1. Latest Articles: Exclude trending/editor pick
+    # 1. Latest Articles: Exclude trending/editor pick
     latest_qs = base_qs.filter(is_trending=False, is_editor_pick=False)
     latest_paginator = Paginator(latest_qs, 6)
     latest_page = latest_paginator.get_page(request.GET.get('latest_page'))
     latest_ids = [article.id for article in latest_page]
     latest_page = annotate_has_video(latest_page)
 
-    # ✅ 2. Recommended Articles: Only editor pick, exclude latest
+    # 2. Recommended Articles: Only editor pick, exclude latest
     recommended_qs = base_qs.filter(is_editor_pick=True).exclude(id__in=latest_ids)
     recommended_paginator = Paginator(recommended_qs, 6)
     recommended_page = recommended_paginator.get_page(request.GET.get('recommended_page'))
     recommended_ids = [article.id for article in recommended_page]
     recommended_page = annotate_has_video(recommended_page)
 
-    # ✅ 3. Trending Articles: Only trending, exclude latest + recommended
+    # 3. Trending Articles: Only trending, exclude latest + recommended
     trending_qs = base_qs.filter(is_trending=True).exclude(id__in=latest_ids + recommended_ids)
     trending_paginator = Paginator(trending_qs, 6)
     trending_page = trending_paginator.get_page(request.GET.get('trending_page'))
     trending_page = annotate_has_video(trending_page)
 
-    # ⭐ Featured Categories
+    # Featured Categories
     featured_categories = Category.objects.filter(is_featured=True)
 
-    # 🔍 Search or category filter results
+    # Search or category filter results
     if query:
         articles = base_qs.filter(Q(title__icontains=query) | Q(content__icontains=query))
         articles = annotate_has_video(articles)
@@ -51,7 +71,7 @@ def home(request):
     else:
         articles = annotate_has_video(base_qs[:10])
 
-    return render(request, 'news/home.html', {
+    context = {
         'query': query,
         'category_filter': category_filter,
         'articles': articles,
@@ -59,7 +79,12 @@ def home(request):
         'recommended_articles': recommended_page,
         'trending_articles': trending_page,
         'featured_categories': featured_categories,
-    })
+    }
+
+    # Add sidebar context
+    context.update(get_sidebar_context())
+
+    return render(request, 'news/home.html', context)
 
 
 def article_detail(request, slug):
@@ -80,16 +105,21 @@ def article_detail(request, slug):
     article.video_embed_url = video_embed_url
     article.has_video = bool(article.video or article.video_url)
 
-    # rest unchanged
     related_articles = Article.objects.filter(
         category=article.category,
         published=True
     ).exclude(pk=article.pk)[:4]
 
-    return render(request, 'news/article_detail.html', {
+    context = {
         'article': article,
         'related_articles': related_articles,
-    })
+    }
+
+    # Add sidebar context
+    context.update(get_sidebar_context())
+
+    return render(request, 'news/article_detail.html', context)
+
 
 def category_view(request, slug):
     category = get_object_or_404(Category, slug=slug)
@@ -98,10 +128,16 @@ def category_view(request, slug):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    return render(request, 'news/category.html', {
+    context = {
         'category': category,
         'articles': page_obj,
         'page_obj': page_obj,
-    })
+        'featured_categories': Category.objects.filter(is_featured=True),  # add for consistent nav
+    }
+
+    # Add sidebar context
+    context.update(get_sidebar_context())
+
+    return render(request, 'news/category.html', context)
 
 
