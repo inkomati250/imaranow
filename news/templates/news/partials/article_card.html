@@ -4,19 +4,30 @@
       <div class="aspect-w-16 aspect-h-9 mb-3">
         <iframe
           src="{{ article.video_url }}"
-          class="w-full h-48 rounded"
+          class="w-full h-full rounded object-cover"
           frameborder="0"
           allowfullscreen
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         ></iframe>
       </div>
+
     {% elif article.video %}
-      <video controls class="w-full h-48 rounded mb-3 object-cover">
-        <source src="{{ article.video.url }}" type="video/mp4">
-        Your browser does not support the video tag.
-      </video>
+      <div class="aspect-w-16 aspect-h-9 mb-3">
+        <video controls class="w-full h-full rounded object-cover">
+          <source src="{{ article.video.url }}" type="video/mp4">
+          <source src="{{ article.video.url }}" type="video/webm">
+          <source src="{{ article.video.url }}" type="video/ogg">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+
     {% elif article.image %}
-      <img src="{{ article.image.url }}" class="rounded mb-3 w-full h-48 object-cover" alt="{{ article.title }}">
+      <div class="aspect-w-16 aspect-h-9 mb-3">
+        <img
+          src="{{ article.image.url }}"
+          class="w-full h-full rounded object-cover"
+          alt="{{ article.title }}">
+      </div>
     {% endif %}
   </a>
 
@@ -28,3 +39,4 @@
   </p>
   <a href="{% url 'article_detail' article.slug %}" class="text-red-600 text-sm hover:underline">Read More</a>
 </div>
+
