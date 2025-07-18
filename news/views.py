@@ -2,6 +2,9 @@ from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
 from django.core.paginator import Paginator
 from .models import Article, Category
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+
 
 
 def annotate_has_video(queryset):
@@ -132,3 +135,12 @@ def category_view(request, slug):
     return render(request, 'news/category.html', context)
 
 
+@require_POST
+def subscribe(request):
+    email = request.POST.get('email')
+    if not email:
+        return JsonResponse({'error': 'Email is required'}, status=400)
+
+    # TODO: Validate email format, save to DB or send to mailing list service
+
+    return JsonResponse({'message': f'Subscribed {email} successfully!'})
