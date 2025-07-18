@@ -1,25 +1,22 @@
 <div class="bg-white rounded shadow hover:shadow-md transition p-4">
   <a href="{% url 'article_detail' article.slug %}">
-    {% if article.video_url %}
-      <div class="aspect-w-16 aspect-h-9 mb-3">
-        <iframe
-          src="{{ article.video_url }}"
-          class="w-full h-full rounded object-cover"
-          frameborder="0"
-          allowfullscreen
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        ></iframe>
-      </div>
+   {% if article.video_url %}
+  <div class="aspect-video mb-4">
+    <iframe
+      src="{{ article.video_url }}"
+      class="w-full h-full rounded"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen
+    ></iframe>
+  </div>
+{% elif article.video %}
+  <div class="aspect-video mb-4">
+    <video controls class="w-full h-full object-cover rounded">
+      <source src="{{ article.video.url }}" type="video/mp4">
+    </video>
+  </div>
 
-    {% elif article.video %}
-      <div class="aspect-w-16 aspect-h-9 mb-3">
-        <video controls class="w-full h-full rounded object-cover">
-          <source src="{{ article.video.url }}" type="video/mp4">
-          <source src="{{ article.video.url }}" type="video/webm">
-          <source src="{{ article.video.url }}" type="video/ogg">
-          Your browser does not support the video tag.
-        </video>
-      </div>
 
     {% elif article.image %}
       <div class="aspect-w-16 aspect-h-9 mb-3">
