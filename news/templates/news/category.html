@@ -2,28 +2,41 @@
 
 {% block content %}
 
-<h1 class="text-3xl font-bold mb-2">{{ category.name }}</h1>
-{% if category.description %}
-  <p class="text-gray-700 mb-4">{{ category.description }}</p>
-{% endif %}
+<div class="flex gap-6">
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-  {% for article in articles %}
-    {% include 'news/partials/article_card.html' %}
-  {% empty %}
-    <p>No articles found in this category.</p>
-  {% endfor %}
-</div>
+  <!-- Main Content -->
+  <div class="flex-grow">
+    <h1 class="text-3xl font-bold mb-2">{{ category.name }}</h1>
+    {% if category.description %}
+      <p class="text-gray-700 mb-4">{{ category.description }}</p>
+    {% endif %}
 
-<!-- Pagination -->
-<div class="mt-6 flex justify-center items-center space-x-2">
-  {% if articles.has_previous %}
-    <a href="?page={{ articles.previous_page_number }}" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">Previous</a>
-  {% endif %}
-  <span class="px-4 py-2 text-gray-600">Page {{ articles.number }} of {{ articles.paginator.num_pages }}</span>
-  {% if articles.has_next %}
-    <a href="?page={{ articles.next_page_number }}" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">Next</a>
-  {% endif %}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {% for article in articles %}
+        {% include 'news/partials/article_card.html' %}
+      {% empty %}
+        <p>No articles found in this category.</p>
+      {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="mt-6 flex justify-center items-center space-x-2">
+      {% if articles.has_previous %}
+        <a href="?page={{ articles.previous_page_number }}" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">Previous</a>
+      {% endif %}
+      <span class="px-4 py-2 text-gray-600">Page {{ articles.number }} of {{ articles.paginator.num_pages }}</span>
+      {% if articles.has_next %}
+        <a href="?page={{ articles.next_page_number }}" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">Next</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <aside class="w-72 hidden lg:block">
+    {% include 'news/partials/sidebar.html' %}
+  </aside>
+
 </div>
 
 {% endblock %}
+
