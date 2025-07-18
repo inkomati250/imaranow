@@ -4,19 +4,24 @@
   <meta charset="UTF-8" />
   <title>ImaraNow - Your Daily News</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet" />
+
+  <!-- Google Font: Anton (similar to Tuko style) -->
+  <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 text-gray-900">
 
-  <!-- 🔝 Top Utility Bar: Logo + Search -->
+  <!-- 🔝 Top Bar: Logo + Search -->
   <div class="bg-gray-100 py-2 px-4 shadow-sm flex justify-between items-center">
     <div
-      class="text-4xl font-bold text-red-600"
-      style="font-family: 'Great Vibes', cursive; letter-spacing: 0.05em; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); cursor: pointer;"
+      class="text-3xl text-red-600 tracking-wide uppercase"
+      style="font-family: 'Anton', sans-serif; letter-spacing: 1px;"
     >
       <a href="{% url 'home' %}">ImaraNow</a>
     </div>
+
     <form method="get" action="{% url 'home' %}" class="w-[60%] md:w-[40%] lg:w-[30%]">
       <div class="relative">
         <input
@@ -83,6 +88,7 @@
 
 </body>
 </html>
+
 
 
 
