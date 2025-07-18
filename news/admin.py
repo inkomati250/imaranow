@@ -1,6 +1,8 @@
 from django.contrib import admin
-from .models import Category, Article
 from django.utils.html import format_html
+
+from .models import Category, Article, Subscriber
+
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -17,6 +19,7 @@ class ArticleAdmin(admin.ModelAdmin):
     search_fields = ('title', 'content')
     prepopulated_fields = {'slug': ('title',)}
     readonly_fields = ('views', 'thumbnail_preview')
+
     fieldsets = (
         (None, {
             'fields': ('title', 'slug', 'author', 'category', 'summary', 'content')
@@ -31,13 +34,15 @@ class ArticleAdmin(admin.ModelAdmin):
 
     def thumbnail_preview(self, obj):
         if obj.image:
-            return format_html('<img src="{}" style="height: 80px; object-fit: cover;" />', obj.image.url)
+            return format_html(
+                '<img src="{}" style="height: 80px; object-fit: cover;" />', obj.image.url
+            )
         return "-"
     thumbnail_preview.short_description = "Thumbnail"
+
 
 @admin.register(Subscriber)
 class SubscriberAdmin(admin.ModelAdmin):
     list_display = ('email', 'subscribed_at')
     search_fields = ('email',)
-
 
