@@ -35,7 +35,7 @@ class ArticleAdmin(admin.ModelAdmin):
         return "-"
     thumbnail_preview.short_description = "Thumbnail"
 
-    @admin.register(Subscriber)
+@admin.register(Subscriber)
 class SubscriberAdmin(admin.ModelAdmin):
     list_display = ('email', 'subscribed_at')
     search_fields = ('email',)
