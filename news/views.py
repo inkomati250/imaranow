@@ -5,17 +5,15 @@ from .models import Article, Category
 
 
 def annotate_has_video(queryset):
-    """Adds a `has_video` attribute to each article in the queryset."""
+    """Add a 'has_video' boolean attribute to articles for template logic."""
     for article in queryset:
         article.has_video = bool(article.video or article.video_url)
     return queryset
 
 
 def get_sidebar_context():
-    # Top 5 Most Viewed Articles
+    """Fetch data for sidebar: most viewed articles and latest videos."""
     most_viewed = Article.objects.filter(published=True).order_by('-views')[:5]
-
-    # Latest 5 Videos (articles with video or video_url)
     latest_videos = Article.objects.filter(
         published=True
     ).filter(
@@ -35,33 +33,31 @@ def home(request):
     query = request.GET.get('q')
     category_filter = request.GET.get('category')
 
-    # Base queryset: only published articles
     base_qs = Article.objects.filter(published=True).order_by('-created')
 
-    # 1. Latest Articles: Exclude trending/editor pick
+    # Latest Articles - exclude trending/editor pick
     latest_qs = base_qs.filter(is_trending=False, is_editor_pick=False)
     latest_paginator = Paginator(latest_qs, 6)
     latest_page = latest_paginator.get_page(request.GET.get('latest_page'))
     latest_ids = [article.id for article in latest_page]
     latest_page = annotate_has_video(latest_page)
 
-    # 2. Recommended Articles: Only editor pick, exclude latest
+    # Recommended Articles - editor picks excluding latest
     recommended_qs = base_qs.filter(is_editor_pick=True).exclude(id__in=latest_ids)
     recommended_paginator = Paginator(recommended_qs, 6)
     recommended_page = recommended_paginator.get_page(request.GET.get('recommended_page'))
     recommended_ids = [article.id for article in recommended_page]
     recommended_page = annotate_has_video(recommended_page)
 
-    # 3. Trending Articles: Only trending, exclude latest + recommended
+    # Trending Articles - trending excluding latest & recommended
     trending_qs = base_qs.filter(is_trending=True).exclude(id__in=latest_ids + recommended_ids)
     trending_paginator = Paginator(trending_qs, 6)
     trending_page = trending_paginator.get_page(request.GET.get('trending_page'))
     trending_page = annotate_has_video(trending_page)
 
-    # Featured Categories
     featured_categories = Category.objects.filter(is_featured=True)
 
-    # Search or category filter results
+    # Search or category filter
     if query:
         articles = base_qs.filter(Q(title__icontains=query) | Q(content__icontains=query))
         articles = annotate_has_video(articles)
@@ -81,7 +77,6 @@ def home(request):
         'featured_categories': featured_categories,
     }
 
-    # Add sidebar context
     context.update(get_sidebar_context())
 
     return render(request, 'news/home.html', context)
@@ -90,7 +85,7 @@ def home(request):
 def article_detail(request, slug):
     article = get_object_or_404(Article, slug=slug, published=True)
 
-    # Extract embed URL for YouTube if video_url is present
+    # Extract YouTube embed URL if video_url is YouTube watch link
     video_embed_url = None
     if article.video_url and "youtube.com/watch" in article.video_url:
         import urllib.parse as urlparse
@@ -114,8 +109,6 @@ def article_detail(request, slug):
         'article': article,
         'related_articles': related_articles,
     }
-
-    # Add sidebar context
     context.update(get_sidebar_context())
 
     return render(request, 'news/article_detail.html', context)
@@ -132,10 +125,8 @@ def category_view(request, slug):
         'category': category,
         'articles': page_obj,
         'page_obj': page_obj,
-        'featured_categories': Category.objects.filter(is_featured=True),  # add for consistent nav
+        'featured_categories': Category.objects.filter(is_featured=True),
     }
-
-    # Add sidebar context
     context.update(get_sidebar_context())
 
     return render(request, 'news/category.html', context)
