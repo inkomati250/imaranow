@@ -32,9 +32,15 @@
   <!-- 🔻 Navigation Bar -->
   <nav class="bg-red-600 text-white">
     <div class="container mx-auto px-4 py-3 flex flex-wrap gap-6 font-medium">
-      <a href="{% url 'home' %}" class="hover:underline">Home</a>
+      <a href="{% url 'home' %}"
+         class="{% if request.path == '/' %}border-b-2 border-white{% endif %} hover:underline">
+         Home
+      </a>
       {% for cat in featured_categories %}
-        <a href="{% url 'category_view' cat.slug %}" class="hover:underline">{{ cat.name }}</a>
+        <a href="{% url 'category_view' cat.slug %}"
+           class="{% if request.path == '/category/'|add:cat.slug|add:'/' %}border-b-2 border-white{% endif %} hover:underline">
+           {{ cat.name }}
+        </a>
       {% endfor %}
     </div>
   </nav>
