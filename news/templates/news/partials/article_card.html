@@ -1,23 +1,24 @@
+
+{% load custom_filters %}
+
 <div class="bg-white rounded shadow hover:shadow-md transition p-4">
   <a href="{% url 'article_detail' article.slug %}">
-   {% if article.video_url %}
-  <div class="aspect-video mb-4">
-    <iframe
-      src="{{ article.video_url }}"
-      class="w-full h-full rounded"
-      frameborder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowfullscreen
-    ></iframe>
-  </div>
-{% elif article.video %}
-  <div class="aspect-video mb-4">
-    <video controls class="w-full h-full object-cover rounded">
-      <source src="{{ article.video.url }}" type="video/mp4">
-    </video>
-  </div>
-
-
+    {% if article.video_url %}
+      <div class="aspect-video mb-4">
+        <iframe
+          src="{{ article.video_url }}"
+          class="w-full h-full rounded"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+        ></iframe>
+      </div>
+    {% elif article.video %}
+      <div class="aspect-video mb-4">
+        <video controls class="w-full h-full object-cover rounded">
+          <source src="{{ article.video.url }}" type="video/mp4">
+        </video>
+      </div>
     {% elif article.image %}
       <div class="aspect-w-16 aspect-h-9 mb-3">
         <img
@@ -32,7 +33,7 @@
     <a href="{% url 'article_detail' article.slug %}" class="hover:text-red-600">{{ article.title }}</a>
   </h3>
   <p class="text-sm text-gray-500 mb-2">
-    {{ article.created|date:"M d, Y" }} | {{ article.category.name }}
+    Posted {{ article.created|posted_ago }} | {{ article.category.name }}
   </p>
   <a href="{% url 'article_detail' article.slug %}" class="text-red-600 text-sm hover:underline">Read More</a>
 </div>

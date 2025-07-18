@@ -1,3 +1,5 @@
+{% load custom_filters %}
+
 <aside class="w-full lg:w-80 xl:w-96 space-y-10 px-2 lg:px-0">
 
   <!-- 🔥 Most Viewed Articles -->
@@ -23,24 +25,26 @@
 
   <!-- 🎥 Latest Videos -->
   <section class="bg-white p-5 rounded-2xl shadow border border-gray-200">
-    <h2 class="text-lg font-bold border-b pb-2 mb-4 text-gray-800">🎥 Latest Videos</h2>
-    {% for video in latest_videos %}
-      <a href="{% url 'article_detail' video.slug %}" class="block mb-5 hover:bg-gray-50 p-2 rounded-lg transition-all">
-        <div class="relative rounded overflow-hidden shadow-sm border">
-          <img src="{{ video.image.url }}" alt="{{ video.title }}" class="w-full h-44 object-cover" />
-          <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-25">
-            <svg class="w-10 h-10 text-white opacity-90" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M6 4l12 6-12 6V4z" />
-            </svg>
-          </div>
-        </div>
-        <h3 class="text-sm font-medium text-gray-900 mt-2 leading-snug">{{ video.title|truncatechars:60 }}</h3>
-        <p class="text-xs text-gray-500 mt-1">{{ video.hours_ago }} hour{% if video.hours_ago != 1 %}s{% endif %} ago</p>
-      </a>
-    {% empty %}
-      <p class="text-sm text-gray-500">No videos available.</p>
-    {% endfor %}
-  </section>
+  <h2 class="text-lg font-bold border-b pb-2 mb-4 text-gray-800">🎥 Latest Videos</h2>
+  {% for article in latest_videos %}
+    {% if article.video_url or article.video %}
+      <div class="video-card mb-6">
+        <a href="{% url 'article_detail' article.slug %}">
+          {% if article.video_url %}
+            <img src="https://img.youtube.com/vi/{{ article.video_url|youtube_id }}/0.jpg" alt="{{ article.title }}">
+          {% elif article.video %}
+            <video src="{{ article.video.url }}" controls poster="{{ article.image.url }}"></video>
+          {% elif article.image %}
+            <img src="{{ article.image.url }}" alt="{{ article.title }}">
+          {% endif %}
+          <h4>{{ article.title }}</h4>
+        </a>
+        <p class="text-xs text-gray-500 mt-1">Posted {{ article.created|posted_ago }}</p>
+      </div>
+    {% endif %}
+  {% endfor %}
+</section>
+
 
   <!-- 📩 Newsletter Signup -->
   <section class="bg-white p-5 rounded-2xl shadow border border-gray-200">

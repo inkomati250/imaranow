@@ -100,6 +100,10 @@ def home(request):
 def article_detail(request, slug):
     article = get_object_or_404(Article, slug=slug, published=True)
 
+    # Increment views count by 1 on each visit
+    article.views = article.views + 1
+    article.save(update_fields=['views'])
+
     # Extract YouTube embed URL
     video_embed_url = None
     if article.video_url and "youtube.com/watch" in article.video_url:
@@ -162,4 +166,7 @@ def subscribe(request):
         Subscriber.objects.create(email=email)
 
     return JsonResponse({'message': f'Subscribed {email} successfully!'})
+
+
+
 
