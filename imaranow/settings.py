@@ -27,7 +27,7 @@ if not SECRET_KEY:
 DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1", "yes")
 
 # Allowed hosts (comma separated list in env)
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+ALLOWED_HOSTS = [host.strip() for host in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")]
 
 # Application definition
 INSTALLED_APPS = [
@@ -76,7 +76,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "imaranow.wsgi.application"
 
-# Database (fallback to SQLite, recommend production DB config in .env)
+# Database configuration
 DATABASES = {
     "default": {
         "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.sqlite3"),
@@ -115,22 +115,37 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Security Enhancements for Production
-
-# Redirect HTTP to HTTPS (if you use HTTPS)
 SECURE_SSL_REDIRECT = os.getenv("SECURE_SSL_REDIRECT", "False").lower() in ("true", "1", "yes")
 
-# Use secure cookies
 SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "True").lower() in ("true", "1", "yes")
-CSRF_COOKIE_SECURE = os.getenv("CSRF_COOKIE_SECURE", "True").lower() in ("true", "1", "yes")
+SESSION_COOKIE_HTTPONLY = True
 
-# HSTS (HTTP Strict Transport Security)
+CSRF_COOKIE_SECURE = os.getenv("CSRF_COOKIE_SECURE", "True").lower() in ("true", "1", "yes")
+CSRF_COOKIE_HTTPONLY = True
+
 SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", 3600))
 SECURE_HSTS_INCLUDE_SUBDOMAINS = os.getenv("SECURE_HSTS_INCLUDE_SUBDOMAINS", "True").lower() in ("true", "1", "yes")
 SECURE_HSTS_PRELOAD = os.getenv("SECURE_HSTS_PRELOAD", "True").lower() in ("true", "1", "yes")
 
-# Prevent content sniffing attacks
 SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
 
-# X-Frame-Options header to protect against clickjacking
 X_FRAME_OPTIONS = "DENY"
 
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
+# Trust the X-Forwarded-Proto header (important for HTTPS behind proxy)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Logging config
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {"class": "logging.StreamHandler",},
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "WARNING",
+    },
+}
