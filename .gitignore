@@ -1,17 +1,33 @@
-# Python bytecode
-*.pyc
+# Byte-compiled / cache files
+*.py[cod]
 __pycache__/
 
-# Environment
-.env
+# Virtual environment
 venv/
 
-# Django runtime files
+# Environment variables
+.env
+
+# SQLite DB (if ever used again)
 db.sqlite3
+
+# Media & Static (runtime files)
 media/
 staticfiles/
 
-# VSCode or other IDEs
+# Static collected files
+static/
+
+# Editor directories and IDE settings
 .vscode/
 .idea/
-.env
+
+# Log files
+nohup.out
+
+# Sockets or runtime deployment
+*.sock
+
+# Test scripts (optional)
+test_*.py
+
