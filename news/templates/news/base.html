@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <title>ImaraNow - Your Daily News</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="csrf-token" content="{{ csrf_token }}">
+
 
   <!-- Google Font: Anton (similar to Tuko style) -->
   <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet" />
@@ -75,22 +77,13 @@
     </div>
   </nav>
 
-  <!-- 📰 Main Content -->
+  <!--  Main Content -->
   <main class="container mx-auto mt-8 px-4">
     {% block content %}{% endblock %}
   </main>
 
-  <!-- ⚓ Footer -->
-  <footer class="mt-12 bg-gray-800 text-white text-center py-6 text-sm space-y-2">
-    <div class="space-x-4">
-      <a href="#" class="hover:underline">About</a>
-      <a href="#" class="hover:underline">Privacy Policy</a>
-      <a href="#" class="hover:underline">Contact</a>
-    </div>
-    <div>
-      &copy; {{ now.year }} ImaraNow. All rights reserved.
-    </div>
-  </footer>
+  <!--Footer -->
+  {% include 'news/partials/footer.html' %}
 
 </body>
 </html>

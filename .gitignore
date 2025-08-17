@@ -11,12 +11,14 @@ venv/
 # SQLite DB (if ever used again)
 db.sqlite3
 
-# Media & Static (runtime files)
+# Media files (user uploads)
 media/
+
+# Collected static files (production)
 staticfiles/
 
-# Static collected files
-static/
+# Local static files (usually tracked but if you want to ignore, uncomment)
+# static/
 
 # Editor directories and IDE settings
 .vscode/
@@ -25,7 +27,7 @@ static/
 # Log files
 nohup.out
 
-# Sockets or runtime deployment
+# Unix sockets and runtime files
 *.sock
 
 # Test scripts (optional)
