@@ -5,6 +5,9 @@ from imagekit.processors import ResizeToFill
 from django.utils.text import slugify
 from taggit.managers import TaggableManager
 
+# ---------------------------
+# Categories
+# ---------------------------
 class Category(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True, blank=True)
@@ -20,6 +23,9 @@ class Category(models.Model):
         return self.name
 
 
+# ---------------------------
+# Articles
+# ---------------------------
 class Article(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField(unique=True, blank=True)
@@ -59,12 +65,54 @@ class Article(models.Model):
         return self.title
 
 
+# ---------------------------
+# Authors
+# ---------------------------
+class Author(models.Model):
+    name = models.CharField(max_length=100)
+    bio = models.TextField(blank=True)
+    photo = models.ImageField(upload_to='authors/', blank=True, null=True)
+    social_links = models.JSONField(blank=True, null=True)  # e.g., {"twitter": "...", "facebook": "..."}
+
+    def __str__(self):
+        return self.name
+
+
+# ---------------------------
+# Subscribers
+# ---------------------------
 class Subscriber(models.Model):
     email = models.EmailField(unique=True)
     subscribed_at = models.DateTimeField(auto_now_add=True)
 
-def __str__(self):
-    return self.email
+    def __str__(self):
+        return self.email
+
+
+# ---------------------------
+# Static / Legal / Company Pages
+# ---------------------------
+class Page(models.Model):
+    title = models.CharField(max_length=150)
+    slug = models.SlugField(unique=True)
+    content = RichTextField()
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.title
+
+
+# ---------------------------
+# Social Links
+# ---------------------------
+class SocialLink(models.Model):
+    name = models.CharField(max_length=50)  # e.g., Facebook
+    url = models.URLField()
+    icon_svg = models.TextField(blank=True)  # optional for custom SVG
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
 
 
 

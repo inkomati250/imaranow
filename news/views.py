@@ -5,21 +5,23 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
-from django.utils.timesince import timesince
 from django.utils.timezone import now
 
-from .models import Article, Category, Subscriber
+from .models import Article, Category, Subscriber, Page, SocialLink, Author
 
 
+# ---------------------------
+# Helpers
+# ---------------------------
 def annotate_has_video(queryset):
-    """Add a 'has_video' boolean attribute to articles for template logic."""
+    """Add 'has_video' boolean for template logic."""
     for article in queryset:
         article.has_video = bool(article.video or article.video_url)
     return queryset
 
 
 def get_sidebar_context():
-    """Fetch data for sidebar: most viewed articles and latest videos."""
+    """Fetch sidebar data: most viewed and latest videos."""
     most_viewed = Article.objects.filter(published=True).order_by('-views')[:5]
     latest_videos = Article.objects.filter(
         published=True
@@ -30,11 +32,11 @@ def get_sidebar_context():
     most_viewed = annotate_has_video(most_viewed)
     latest_videos = annotate_has_video(latest_videos)
 
-    # Add formatted views for display
+    # Add comma-separated views
     for article in most_viewed:
-        article.views_display = f"{article.views:,}"  # comma-separated
+        article.views_display = f"{article.views:,}"
 
-    # Add hours ago attribute for videos
+    # Add hours ago for videos
     for video in latest_videos:
         delta = now() - video.created
         hours_ago = int(delta.total_seconds() // 3600)
@@ -46,6 +48,9 @@ def get_sidebar_context():
     }
 
 
+# ---------------------------
+# Home View
+# ---------------------------
 def home(request):
     query = request.GET.get('q')
     category_filter = request.GET.get('category')
@@ -83,6 +88,11 @@ def home(request):
 
     articles = annotate_has_video(articles)
 
+    # Dynamic company pages, social links, authors
+    company_pages = Page.objects.filter(is_active=True)
+    social_links = SocialLink.objects.filter(is_active=True)
+    authors = Author.objects.all()
+
     context = {
         'query': query,
         'category_filter': category_filter,
@@ -91,20 +101,26 @@ def home(request):
         'recommended_articles': recommended_page,
         'trending_articles': trending_page,
         'featured_categories': featured_categories,
+        'company_pages': company_pages,
+        'social_links': social_links,
+        'authors': authors,
     }
 
     context.update(get_sidebar_context())
     return render(request, 'news/home.html', context)
 
 
+# ---------------------------
+# Article Detail
+# ---------------------------
 def article_detail(request, slug):
     article = get_object_or_404(Article, slug=slug, published=True)
 
-    # Increment views count by 1 on each visit
-    article.views = article.views + 1
+    # Increment views
+    article.views += 1
     article.save(update_fields=['views'])
 
-    # Extract YouTube embed URL
+    # YouTube embed
     video_embed_url = None
     if article.video_url and "youtube.com/watch" in article.video_url:
         import urllib.parse as urlparse
@@ -126,12 +142,18 @@ def article_detail(request, slug):
     context = {
         'article': article,
         'related_articles': related_articles,
+        'company_pages': Page.objects.filter(is_active=True),
+        'social_links': SocialLink.objects.filter(is_active=True),
+        'authors': Author.objects.all(),
     }
-    context.update(get_sidebar_context())
 
+    context.update(get_sidebar_context())
     return render(request, 'news/article_detail.html', context)
 
 
+# ---------------------------
+# Category View
+# ---------------------------
 def category_view(request, slug):
     category = get_object_or_404(Category, slug=slug)
     articles_qs = Article.objects.filter(category=category, published=True).order_by('-created')
@@ -144,29 +166,26 @@ def category_view(request, slug):
         'articles': page_obj,
         'page_obj': page_obj,
         'featured_categories': Category.objects.filter(is_featured=True),
+        'company_pages': Page.objects.filter(is_active=True),
+        'social_links': SocialLink.objects.filter(is_active=True),
+        'authors': Author.objects.all(),
     }
     context.update(get_sidebar_context())
-
     return render(request, 'news/category.html', context)
 
 
+# ---------------------------
+# Subscribe API
+# ---------------------------
 @require_POST
 def subscribe(request):
-    email = request.POST.get('email')
+    email = request.POST.get("email")
     if not email:
-        return JsonResponse({'error': 'Email is required'}, status=400)
+        return JsonResponse({"error": "Email is required."}, status=400)
 
-    try:
-        validate_email(email)
-    except ValidationError:
-        return JsonResponse({'error': 'Invalid email format'}, status=400)
+    if Subscriber.objects.filter(email=email).exists():
+        return JsonResponse({"error": "You're already subscribed!"}, status=400)
 
-    # Prevent duplicates
-    if not Subscriber.objects.filter(email=email).exists():
-        Subscriber.objects.create(email=email)
-
-    return JsonResponse({'message': f'Subscribed {email} successfully!'})
-
-
-
+    Subscriber.objects.create(email=email)
+    return JsonResponse({"message": "Thanks for subscribing!"})
 
